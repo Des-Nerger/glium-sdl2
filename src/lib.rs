@@ -93,13 +93,6 @@ impl From<IncompatibleOpenGl> for GliumSdl2Error {
 }
 
 impl std::error::Error for GliumSdl2Error {
-    fn description(&self) -> &str {
-        return match *self {
-            GliumSdl2Error::WindowBuildError(ref err) => err.description(),
-            GliumSdl2Error::ContextCreationError(ref s) => s
-        }
-    }
-
     fn cause(&self) -> Option<&dyn std::error::Error> {
         match *self {
             GliumSdl2Error::WindowBuildError(ref err) => err.source(),
