@@ -9,25 +9,23 @@ use glium::Surface;
 mod support;
 
 fn main() {
-    use glium_sdl2::DisplayBuild;
+	use glium_sdl2::DisplayBuild;
 
-    let sdl_context = sdl2::init().unwrap();
-    let video_subsystem = sdl_context.video().unwrap();
+	let sdl_context = sdl2::init().unwrap();
+	let video_subsystem = sdl_context.video().unwrap();
 
-    video_subsystem.gl_attr().set_depth_size(24);
+	video_subsystem.gl_attr().set_depth_size(24);
 
-    // building the display, ie. the main object
-    let display = video_subsystem.window("Teapot", 800, 600)
-        .build_glium()
-        .unwrap();
+	// building the display, ie. the main object
+	let display = video_subsystem.window("Teapot", 800, 600).build_glium().unwrap();
 
-    // building the vertex and index buffers
-    let vertex_buffer = support::load_wavefront(&display, include_bytes!("support/teapot.obj"));
+	// building the vertex and index buffers
+	let vertex_buffer = support::load_wavefront(&display, include_bytes!("support/teapot.obj"));
 
-    // the program
-    let program = program!(&display,
-        140 => {
-            vertex: "
+	// the program
+	let program = program!(&display,
+			140 => {
+					vertex: "
                 #version 140
 
                 uniform mat4 persp_matrix;
@@ -45,7 +43,7 @@ fn main() {
                 }
             ",
 
-            fragment: "
+					fragment: "
                 #version 140
 
                 in vec3 v_normal;
@@ -59,10 +57,10 @@ fn main() {
                     f_color = vec4(color, 1.0);
                 }
             ",
-        },
+			},
 
-        110 => {
-            vertex: "
+			110 => {
+					vertex: "
                 #version 110
 
                 uniform mat4 persp_matrix;
@@ -80,7 +78,7 @@ fn main() {
                 }
             ",
 
-            fragment: "
+					fragment: "
                 #version 110
 
                 varying vec3 v_normal;
@@ -93,10 +91,10 @@ fn main() {
                     gl_FragColor = vec4(color, 1.0);
                 }
             ",
-        },
+			},
 
-        100 => {
-            vertex: "
+			100 => {
+					vertex: "
                 #version 100
 
                 uniform lowp mat4 persp_matrix;
@@ -114,7 +112,7 @@ fn main() {
                 }
             ",
 
-            fragment: "
+					fragment: "
                 #version 100
 
                 varying lowp vec3 v_normal;
@@ -127,54 +125,56 @@ fn main() {
                     gl_FragColor = vec4(color, 1.0);
                 }
             ",
-        },
-    ).unwrap();
+			},
+	)
+	.unwrap();
 
-    //
-    let mut camera = support::camera::CameraState::new();
+	//
+	let mut camera = support::camera::CameraState::new();
 
-    let mut event_pump = sdl_context.event_pump().unwrap();
+	let mut event_pump = sdl_context.event_pump().unwrap();
 
-    // the main loop
-    support::start_loop(|| {
+	// the main loop
+	support::start_loop(|| {
+		camera.update();
 
-        camera.update();
+		// building the uniforms
+		let uniforms = uniform! {
+				persp_matrix: camera.get_perspective(),
+				view_matrix: camera.get_view(),
+		};
 
-        // building the uniforms
-        let uniforms = uniform! {
-            persp_matrix: camera.get_perspective(),
-            view_matrix: camera.get_view(),
-        };
+		// draw parameters
+		let params = glium::DrawParameters {
+			depth: glium::Depth { test: glium::DepthTest::IfLess, write: true, ..Default::default() },
+			..Default::default()
+		};
 
-        // draw parameters
-        let params = glium::DrawParameters {
-            depth: glium::Depth {
-                test: glium::DepthTest::IfLess,
-                write: true,
-                .. Default::default()
-            },
-            .. Default::default()
-        };
+		// drawing a frame
+		let mut target = display.draw();
 
-        // drawing a frame
-        let mut target = display.draw();
+		target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
+		target
+			.draw(
+				&vertex_buffer,
+				&glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
+				&program,
+				&uniforms,
+				&params,
+			)
+			.unwrap();
+		target.finish().unwrap();
 
-        target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
-        target.draw(&vertex_buffer,
-                    &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
-                    &program, &uniforms, &params).unwrap();
-        target.finish().unwrap();
+		// polling and handling the events received by the window
+		for event in event_pump.poll_iter() {
+			use sdl2::event::Event;
 
-        // polling and handling the events received by the window
-        for event in event_pump.poll_iter() {
-            use sdl2::event::Event;
+			match event {
+				Event::Quit { .. } => return support::Action::Stop,
+				ev => camera.process_input(&ev),
+			}
+		}
 
-            match event {
-                Event::Quit { .. } => return support::Action::Stop,
-                ev => camera.process_input(&ev),
-            }
-        }
-
-        support::Action::Continue
-    });
+		support::Action::Continue
+	});
 }

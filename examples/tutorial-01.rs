@@ -1,0 +1,46 @@
+#![warn(clippy::pedantic, elided_lifetimes_in_paths, explicit_outlives_requirements)]
+#![allow(
+	confusable_idents,
+	mixed_script_confusables,
+	non_camel_case_types,
+	non_snake_case,
+	uncommon_codepoints
+)]
+
+extern crate glium;
+extern crate glium_sdl2;
+extern crate sdl2;
+
+use {
+	glium::Surface,
+	glium_sdl2::DisplayBuild,
+	sdl2::{event::Event, keyboard::Scancode},
+	std::{
+		thread,
+		time::{Duration, Instant},
+	},
+};
+
+fn main() {
+	let sdl2 = sdl2::init().unwrap();
+	let mut eventPump = sdl2.event_pump().unwrap();
+	let display = sdl2.video().unwrap().window(file!(), 800, 600).resizable().build_glium().unwrap();
+	const FPS: u32 = 30;
+	let frameDuration = Duration::from_secs(1) / FPS;
+	let mut nextFrameInstant = Instant::now() + frameDuration;
+	loop {
+		for event in eventPump.poll_iter() {
+			match event {
+				Event::Quit { .. } | Event::KeyDown { scancode: Some(Scancode::Escape), .. } => return,
+				_ => {}
+			}
+		}
+		{
+			let mut frame = display.draw();
+			frame.clear_color(0.0, 0.0, 1.0, 1.0);
+			frame.finish().unwrap();
+		}
+		thread::sleep(nextFrameInstant - Instant::now());
+		nextFrameInstant += frameDuration;
+	}
+}
