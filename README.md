@@ -1,33 +1,20 @@
 # glium_sdl2
 
-[![Build Status](https://travis-ci.org/nukep/glium-sdl2.svg)](https://travis-ci.org/nukep/glium-sdl2)
-[![Latest Version](https://img.shields.io/crates/v/glium_sdl2.svg)](https://crates.io/crates/glium_sdl2)
-
-An SDL2 backend for [Glium](https://github.com/tomaka/glium) - a high-level
+An SDL2 backend for [Glium](https://github.com/glium/glium) - a high-level
 OpenGL wrapper for the Rust language.
-
-This library, along with `glium` and [`rust-sdl2`](https://github.com/Rust-SDL2/rust-sdl2),
-are in heavy development and are subject to change.
 
 ```toml
 [dependencies]
-glium_sdl2 = "0.15"
-sdl2 = "0.30"
-glium = "0.29"
-
-features = []
-default-features = false
+glium_sdl2 = { git = "https://github.com/Des-Nerger/glium-sdl2" }
+sdl2 = "0"
+glium = { version = "0", default-features = false }
 ```
 
 glium_sdl2 doesn't reexport the `glium` or `sdl2` crates, so you must declare
-them _with the versions listed above_ in your `Cargo.toml` file.
+them _with the versions compatible to those of glium_sdl2_ in your `Cargo.toml` file.
 
 glium_sdl2's version will be bumped once this library, `glium` or `sdl2`
 make breaking changes.
-
-## [Documentation](https://docs.rs/glium_sdl2)
-
-## [Change log](CHANGELOG.md)
 
 ## Example usage
 
