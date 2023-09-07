@@ -7,15 +7,16 @@
 	uncommon_codepoints
 )]
 
+#[macro_use]
 extern crate glium;
 extern crate glium_sdl2;
 extern crate sdl2;
 
+#[path = "support/tuto-07-teapot.rs"]
+mod teapot;
+
 use {
-	glium::{
-		index::{NoIndices, PrimitiveType::TrianglesList},
-		Surface,
-	},
+	glium::{index::PrimitiveType::TrianglesList, IndexBuffer, Program, Surface, VertexBuffer},
 	glium_sdl2::DisplayBuild,
 	sdl2::{event::Event, keyboard::Scancode},
 	std::{
@@ -27,44 +28,37 @@ use {
 fn main() {
 	let sdl2 = sdl2::init().unwrap();
 	let mut eventPump = sdl2.event_pump().unwrap();
-	let display = &sdl2.video().unwrap().window(file!(), 800, 600).resizable().build_glium().unwrap();
-	#[derive(Copy, Clone)]
-	struct Vertex {
-		position: [f32; 2],
-	}
-	glium::implement_vertex!(Vertex, position);
-	let vertexBuffer = &glium::VertexBuffer::new(
-		display,
-		&[
-			Vertex { position: [-0.5, -0.5] },
-			Vertex { position: [0.0, 0.5] },
-			Vertex { position: [0.5, -0.25] },
-		],
-	)
-	.unwrap();
-	let program = &glium::Program::from_source(
+	let display = &{
+		let video = sdl2.video().unwrap();
+		video.gl_attr().set_multisample_samples(16);
+		video.window(file!(), 800, 600).resizable().build_glium().unwrap()
+	};
+
+	let positions = &VertexBuffer::new(display, &teapot::VERTICES).unwrap();
+	let normals = &VertexBuffer::new(display, &teapot::NORMALS).unwrap();
+	let indices = &IndexBuffer::new(display, TrianglesList, &teapot::INDICES).unwrap();
+
+	let program = &Program::from_source(
 		display,
 		r#"
 			#version 140
 
-			in vec2 position;
-			out vec2 my_attr;      // our new attribute
+			in vec3 position;
+			in vec3 normal;
 
 			uniform mat4 matrix;
 
 			void main() {
-				my_attr = position;     // we need to set the value of each `out` variable.
-				gl_Position = matrix * vec4(position, 0.0, 1.0);
+				gl_Position = matrix * vec4(position, 1.0);
 			}
 		"#,
 		r#"
 			#version 140
 
-			in vec2 my_attr;
 			out vec4 color;
 
 			void main() {
-				color = vec4(my_attr, 0.0, 1.0);
+				color = vec4(1.0, 0.0, 0.0, 1.0);
 			}
     "#,
 		None,
@@ -72,7 +66,7 @@ fn main() {
 	.unwrap();
 	const FPS: u32 = 30;
 	let frameDuration = Duration::from_secs(1) / FPS;
-	let (mut t, mut nextFrameInstant) = (-0.5_f32, Instant::now() + frameDuration);
+	let mut nextFrameInstant = Instant::now() + frameDuration;
 	loop {
 		for event in eventPump.poll_iter() {
 			match event {
@@ -81,26 +75,22 @@ fn main() {
 			}
 		}
 
-		// we update `t`
-		t += 0.0065;
-		if t > 0.5 {
-			t = -0.5;
-		}
-
 		{
 			let mut frame = display.draw();
 			frame.clear_color(0.0, 0.0, 1.0, 1.0);
 			frame
 				.draw(
-					vertexBuffer,
-					&NoIndices(TrianglesList),
+					(positions, normals),
+					indices,
 					program,
-					&glium::uniform! { matrix: [
-						[ t.cos(), t.sin(), 0.0, 0.0],
-						[-t.sin(), t.cos(), 0.0, 0.0],
-						[0.0, 0.0, 1.0, 0.0],
-						[0.0, 0.0, 0.0, 1.0_f32],
-					] },
+					&uniform! {
+						matrix: [
+							[0.01, 0.00, 0.00, 0.0],
+							[0.00, 0.01, 0.00, 0.0],
+							[0.00, 0.00, 0.01, 0.0],
+							[0.00, 0.00, 0.00, 1.0_f32],
+						],
+					},
 					&default(),
 				)
 				.unwrap();

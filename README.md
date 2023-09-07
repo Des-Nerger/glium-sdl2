@@ -11,7 +11,7 @@ glium = { version = "0", default-features = false }
 ```
 
 glium_sdl2 doesn't reexport the `glium` or `sdl2` crates, so you must declare
-them _with the versions compatible to those of glium_sdl2_ in your `Cargo.toml` file.
+them (with versions compatible to those of glium_sdl2) in your `Cargo.toml` file.
 
 glium_sdl2's version will be bumped once this library, `glium` or `sdl2`
 make breaking changes.

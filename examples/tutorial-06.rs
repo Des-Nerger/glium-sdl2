@@ -69,25 +69,25 @@ fn main() {
 
 			in vec2 position;
 			in vec2 texCoords;
-			out vec2 vTexCoords;
+			out vec2 v_texCoords;
 
 			uniform mat4 matrix;
 
 			void main() {
-				vTexCoords = texCoords;
+				v_texCoords = texCoords;
 				gl_Position = matrix * vec4(position, 0.0, 1.0);
 			}
 		"#,
 		r#"
 			#version 140
 
-			in vec2 vTexCoords;
+			in vec2 v_texCoords;
 			out vec4 color;
 
 			uniform sampler2D tex;
 
 			void main() {
-				color = texture(tex, vTexCoords);
+				color = texture(tex, v_texCoords);
 			}
     "#,
 		None,
@@ -123,7 +123,7 @@ fn main() {
 							[ t.cos(), t.sin(), 0.0, 0.0],
 							[-t.sin(), t.cos(), 0.0, 0.0],
 							[0.0, 0.0, 1.0, 0.0],
-							[0.0, 0.0, 0.0, 1.0f32],
+							[0.0, 0.0, 0.0, 1.0_f32],
 						],
 						tex: texture,
 					},

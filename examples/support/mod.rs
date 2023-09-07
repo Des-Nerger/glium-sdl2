@@ -72,7 +72,7 @@ pub fn load_wavefront(display: &Display, data: &[u8]) -> VertexBufferAny {
 					let texture = texture.unwrap_or([0.0, 0.0]);
 					let normal = normal.unwrap_or([0.0, 0.0, 0.0]);
 
-					vertex_data.push(Vertex { position: position, normal: normal, texture: texture })
+					vertex_data.push(Vertex { position, normal, texture })
 				}
 			}
 			_ => unimplemented!(),
