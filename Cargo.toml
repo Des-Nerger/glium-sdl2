@@ -1,6 +1,6 @@
 [package]
 name = "glium_sdl2"
-version = "0.17.3"
+version = "0.17.4"
 authors = ["Danny Spencer <dan@atomicpotato.net>"]
 license = "MIT/Apache-2.0"
 keywords = ["graphics", "gamedev", "glium", "sdl", "opengl"]
@@ -21,6 +21,6 @@ default-features = false
 
 [dev-dependencies]
 clock_ticks = "0.1"
-genmesh = "0.4"
-obj = { version = "0.5", features = ["usegenmesh"] }
+genmesh = "0.6"
+obj = { version = "0.10", features = ["genmesh"] }
 image = { version = "0.24", default-features = false, features = ["jpeg", "png"] }

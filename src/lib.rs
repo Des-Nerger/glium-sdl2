@@ -53,10 +53,10 @@
 extern crate glium;
 extern crate sdl2;
 
+use std::cell::UnsafeCell;
 use std::ops::Deref;
 use std::os::raw::c_void;
 use std::rc::Rc;
-use std::{cell::UnsafeCell, mem};
 
 use glium::backend::{Backend, Context, Facade};
 use glium::debug;
@@ -234,26 +234,26 @@ impl<'a> DisplayBuild for &'a mut sdl2::video::WindowBuilder {
 }
 
 pub struct SDL2WindowBackend {
-	window: UnsafeCell<sdl2::video::Window>,
+	window: UnsafeCell<Window>,
 	context: sdl2::video::GLContext,
 }
 
 impl SDL2WindowBackend {
 	fn subsystem(&self) -> &VideoSubsystem {
 		let ptr = self.window.get();
-		let window: &Window = unsafe { mem::transmute(ptr) };
+		let window = unsafe { &*ptr };
 		window.subsystem()
 	}
 
 	fn window(&self) -> &Window {
 		let ptr = self.window.get();
-		let window: &Window = unsafe { mem::transmute(ptr) };
+		let window = unsafe { &*ptr };
 		window
 	}
 
 	fn window_mut(&self) -> &mut Window {
 		let ptr = self.window.get();
-		let window: &mut Window = unsafe { mem::transmute(ptr) };
+		let window = unsafe { &mut *ptr };
 		window
 	}
 
