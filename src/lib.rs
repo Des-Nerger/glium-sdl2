@@ -257,9 +257,7 @@ impl SDL2WindowBackend {
 		window
 	}
 
-	pub fn new(
-		window_builder: &mut sdl2::video::WindowBuilder,
-	) -> Result<SDL2WindowBackend, GliumSdl2Error> {
+	pub fn new(window_builder: &mut sdl2::video::WindowBuilder) -> Result<SDL2WindowBackend, GliumSdl2Error> {
 		let window = window_builder.opengl().build()?;
 		let context = window.gl_create_context()?;
 
@@ -286,6 +284,10 @@ unsafe impl Backend for SDL2WindowBackend {
 	fn get_framebuffer_dimensions(&self) -> (u32, u32) {
 		let (width, height) = self.window().drawable_size();
 		(width as u32, height as u32)
+	}
+
+	fn resize(&self, _new_size: (u32, u32)) {
+		unimplemented!()
 	}
 
 	fn is_current(&self) -> bool {

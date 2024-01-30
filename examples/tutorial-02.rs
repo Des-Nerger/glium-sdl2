@@ -36,11 +36,7 @@ fn main() {
 	glium::implement_vertex!(Vertex, position);
 	let vertexBuffer = &glium::VertexBuffer::new(
 		display,
-		&[
-			Vertex { position: [-0.5, -0.5] },
-			Vertex { position: [0.0, 0.5] },
-			Vertex { position: [0.5, -0.25] },
-		],
+		&[Vertex { position: [-0.5, -0.5] }, Vertex { position: [0.0, 0.5] }, Vertex { position: [0.5, -0.25] }],
 	)
 	.unwrap();
 	let program = &glium::Program::from_source(
